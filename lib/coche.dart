@@ -1,10 +1,9 @@
 class Coche {
   String matricula;
-  String? vehiculo;
+  List<String>? vehiculos;
 
   Coche({
     required this.matricula,
-    this.vehiculo,
-  
+    this.vehiculos,
   });
 }

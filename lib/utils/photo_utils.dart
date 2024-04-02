@@ -10,6 +10,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image/image.dart' as ui;
 import 'package:flutter_exif_plugin/flutter_exif_plugin.dart' as exif;
+import 'package:camera/camera.dart';
+
 class PhotoUtils {
   static Future<String?> takePhoto(String customName) async {
   try {
@@ -21,6 +23,7 @@ class PhotoUtils {
       source: ImageSource.camera,
       imageQuality: prefs.getInt('quality') ?? 50,
     );
+     int coun =0;
 
     if (pickedFile != null) {
       // Obtener la ubicación actual
@@ -39,6 +42,8 @@ class PhotoUtils {
       if (existingFile.existsSync()) {
         // Si existe, eliminarlo
         existingFile.deleteSync();
+        coun= coun +1;
+        customName = '$customName'+'$coun';
       }
 
       // Obtener los datos EXIF de la imagen
@@ -78,7 +83,9 @@ class PhotoUtils {
       File(renamedFile.path).writeAsBytesSync(ui.encodeJpg(originalImage));
 
       // Devolver la nueva ruta del archivo
+      
       return renamedFile.path;
+    
     } else {
       // Si no se seleccionó ninguna imagen
       return null;
@@ -89,7 +96,6 @@ class PhotoUtils {
     return null;
   }
 }
-
 
 
   static Future<void> requestPermissions() async {
@@ -123,7 +129,7 @@ class PhotoUtils {
     }
   }
 
-  static Future<void> enviarYEliminar(Coche coche, BuildContext context) async {
+  static Future<void> enviarYEliminar(Coche coche, BuildContext context) async {/*
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final FTPConnect ftpConnect = FTPConnect(
@@ -162,5 +168,5 @@ class PhotoUtils {
       await ftpConnect.disconnect();
       Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
     }
-  }
+  */}
 }

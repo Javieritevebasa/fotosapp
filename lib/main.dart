@@ -65,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ? () {
                       Coche coche = Coche(
                         matricula: _matriculaController.text,
+                        vehiculos: [],
                       );
 
                       Navigator.push(

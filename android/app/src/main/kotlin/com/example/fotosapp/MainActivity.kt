@@ -1,4 +1,4 @@
-package com.example.fotosapp
+package com.fotosappitvEXC
 
 import io.flutter.embedding.android.FlutterActivity
 

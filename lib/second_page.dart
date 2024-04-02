@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'coche.dart';
 import 'utils/photo_utils.dart';
 import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class SecondPage extends StatefulWidget {
   final Coche coche;
@@ -14,7 +15,7 @@ class SecondPage extends StatefulWidget {
 
 class _SecondPageState extends State<SecondPage> {
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Second Page'),
@@ -33,61 +34,35 @@ class _SecondPageState extends State<SecondPage> {
               child: Text('Tomar Foto Del Vehículo'),
             ),
             ElevatedButton(
-              onPressed: widget.coche.vehiculo != null ? () => _enviar() : null,
+              onPressed: widget.coche.vehiculos != null ? () => _enviar() : null,
               child: Text('Enviar'),
             ),
             SizedBox(height: 20),
-            _buildImagePreview(widget.coche.vehiculo, "Imagen vehículo*"),
+            CarouselSlider(
+              options: CarouselOptions(
+                aspectRatio: 16 / 9,
+                enlargeCenterPage: true,
+              ),
+              items: widget.coche.vehiculos!.map((imagePath) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                      ),
+                      child: Image.file(
+                        File(imagePath),
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildImagePreview(String? imagePath, String name) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              if (imagePath != null && imagePath.isNotEmpty)
-                Image.memory(
-                  File(imagePath).readAsBytesSync(),
-                  fit: BoxFit.contain, // Ajustar a la ventana
-                  height: 400, // Tamaño máximo de la imagen
-                  width: 400, // Ancho máximo
-                ),
-              if (imagePath == null || imagePath.isEmpty)
-                Container(
-                  width: double.infinity,
-                  height: 200,
-                  color: Color.fromARGB(
-                      94, 146, 146, 146), // Color de fondo para la "x"
-                  child: Center(
-                    child: Text(
-                      'Sin Foto',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(
-                            143, 115, 0, 255), // Color del texto "X"
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(height: 5), // Espacio entre la imagen y el título
-          Center(
-            child: Text(
-              name,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -106,14 +81,8 @@ class _SecondPageState extends State<SecondPage> {
         await PhotoUtils.takePhoto(widget.coche.matricula + "_" + string);
 
     if (photoPath != null) {
-      setState(() {
-        switch (string) {
-          case "vehiculo":
-            widget.coche.vehiculo = photoPath.toString();
-            break;
-        }
-      });
-
+      widget.coche.vehiculos!.add(photoPath.toString());
+      print(widget.coche.vehiculos);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Foto tomada correctamente'),
       ));
