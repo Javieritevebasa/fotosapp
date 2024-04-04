@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:fotosapp/coche.dart';
 import 'package:fotosapp/main.dart';
@@ -13,7 +15,8 @@ import 'package:flutter_exif_plugin/flutter_exif_plugin.dart' as exif;
 import 'package:camera/camera.dart';
 
 class PhotoUtils {
-  static Future<String?> takePhoto(String customName) async {
+       
+  static Future<String?> takePhoto(String customName, BuildContext context, int count) async {
   try {
     await requestPermissions(); // Solicitar permisos antes de continuar
 
@@ -23,8 +26,11 @@ class PhotoUtils {
       source: ImageSource.camera,
       imageQuality: prefs.getInt('quality') ?? 50,
     );
-     int coun =0;
-
+    showDialog(
+          context: context,
+          builder: (context) {
+            return const Center(child: CircularProgressIndicator());
+          });
     if (pickedFile != null) {
       // Obtener la ubicación actual
       final Position position = await Geolocator.getCurrentPosition(
@@ -42,10 +48,10 @@ class PhotoUtils {
       if (existingFile.existsSync()) {
         // Si existe, eliminarlo
         existingFile.deleteSync();
-        coun= coun +1;
-        customName = '$customName'+'$coun';
+        
       }
-
+       
+        customName = '$customName'+ '$count';
       // Obtener los datos EXIF de la imagen
       final exifData = await exif.FlutterExif.fromPath(pickedFile.path);
 
@@ -83,7 +89,7 @@ class PhotoUtils {
       File(renamedFile.path).writeAsBytesSync(ui.encodeJpg(originalImage));
 
       // Devolver la nueva ruta del archivo
-      
+       Navigator.of(context).pop();
       return renamedFile.path;
     
     } else {
@@ -129,7 +135,7 @@ class PhotoUtils {
     }
   }
 
-  static Future<void> enviarYEliminar(Coche coche, BuildContext context) async {/*
+  static Future<void> enviarYEliminar(Coche coche, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final FTPConnect ftpConnect = FTPConnect(
@@ -146,10 +152,7 @@ class PhotoUtils {
             return const Center(child: CircularProgressIndicator());
           });
       await ftpConnect.changeDirectory('/fotos/');
-      List<String> imagePaths = [
-        coche.vehiculo!,
-       
-      ];      
+      List<String> imagePaths = coche.vehiculos!;      
 
       for (String imagePath in imagePaths) {
         final File imageFile = File(imagePath);
@@ -168,5 +171,5 @@ class PhotoUtils {
       await ftpConnect.disconnect();
       Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
     }
-  */}
+  }
 }

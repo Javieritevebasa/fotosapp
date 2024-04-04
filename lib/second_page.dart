@@ -6,7 +6,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 class SecondPage extends StatefulWidget {
   final Coche coche;
-
   SecondPage({required this.coche});
 
   @override
@@ -14,8 +13,9 @@ class SecondPage extends StatefulWidget {
 }
 
 class _SecondPageState extends State<SecondPage> {
+  int count =0;
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Second Page'),
@@ -34,33 +34,55 @@ class _SecondPageState extends State<SecondPage> {
               child: Text('Tomar Foto Del Vehículo'),
             ),
             ElevatedButton(
-              onPressed: widget.coche.vehiculos != null ? () => _enviar() : null,
+              onPressed:
+                  widget.coche.vehiculos != null ? () => _enviar() : null,
               child: Text('Enviar'),
             ),
-            SizedBox(height: 20),
-            CarouselSlider(
-              options: CarouselOptions(
-                aspectRatio: 16 / 9,
-                enlargeCenterPage: true,
+            SizedBox(height: 10),
+            if (widget.coche.vehiculos!.isNotEmpty)
+              CarouselSlider(
+                options: CarouselOptions(
+                  height: 600.0,
+                  enlargeCenterPage: true,
+                  aspectRatio: 16 / 9,
+                  enableInfiniteScroll: true,
+                  viewportFraction: 0.8,
+                ),
+                  items: widget.coche.vehiculos!.map((path) {
+    return Builder(
+      builder: (BuildContext context) {
+        return Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              margin: EdgeInsets.symmetric(horizontal: 5.0),
+              decoration: BoxDecoration(
+                color: Colors.grey,
               ),
-              items: widget.coche.vehiculos!.map((imagePath) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                      ),
-                      child: Image.file(
-                        File(imagePath),
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
+              child: Image.file(
+                File(path),
+                fit: BoxFit.cover,
+              ),
             ),
+                        SizedBox(height: 10),
+
+            ElevatedButton(
+              onPressed: () {
+                // Eliminar la imagen y actualizar el estado
+                setState(() {
+                  widget.coche.vehiculos!.remove(path);
+                   final File existingFile = File(path);
+                  existingFile.deleteSync();
+                });
+              },
+              child: Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+  }).toList(),
+              ),
           ],
         ),
       ),
@@ -77,15 +99,18 @@ class _SecondPageState extends State<SecondPage> {
   }
 
   Future<void> _takePhoto(String string, BuildContext context) async {
-    final String? photoPath =
-        await PhotoUtils.takePhoto(widget.coche.matricula + "_" + string);
+    final String? photoPath = await PhotoUtils.takePhoto(
+        widget.coche.matricula + "_" + string,
+        context,count);
 
     if (photoPath != null) {
+      count++;
       widget.coche.vehiculos!.add(photoPath.toString());
       print(widget.coche.vehiculos);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Foto tomada correctamente'),
       ));
     }
+    setState(() {});
   }
 }
